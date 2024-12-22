@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador Dream League</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #1e3a8a; /* Azul oscuro */
+        }
+        input[type="text"], button {
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3b82f6; /* Azul claro */
+            color: white;
+            margin: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border: 2px solid #2563eb; /* Azul más fuerte */
+        }
+        button:hover {
+            background-color: #2563eb; /* Azul más fuerte */
+        }
+
+        /* Sección de cronómetro y marcador */
+        #partido {
+            font-size: 1.8em;
+            margin: 20px 0;
+            color: #1e40af; /* Azul intermedio */
+        }
+        #cronometro {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #2563eb; /* Azul brillante */
+            font-weight: bold;
+        }
+        #marcador {
+            font-size: 2em;
+            color: #3b82f6;
+            margin: 20px 0;
+        }
+
+        /* Sección de nombres de los equipos */
+        .equipo-nombre {
+            font-size: 1.4em;
+            color: #1e3a8a;
+        }
+
+        /* Estilo de recuadros para los nombres de los equipos */
+        input[type="text"] {
+            background-color: #1e3a8a; /* Azul oscuro */
+            color: white;
+        }
+
+        /* Contenedor de las imágenes de fútbol de fondo */
+        .background-image {
+            background-image: url('https://img.freepik.com/vector-premium/dibujo-linea-continua-joven-practicante-futbol-libre-sostener-pelota-calle_533993-8887.jpg?w=1380');
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Coloca la imagen en el fondo */
+        }
+
+        /* Botones de marcador */
+        .marcador-btns button {
+            background-color: #10b981; /* Verde futbolístico */
+            margin: 5px;
+        }
+
+        /* Estilo para el botón de pausa */
+        button:pause {
+            background-color: red; /* Fondo rojo */
+            color: black; /* Letra en negro */
+        }
+
+        /* Sección de personalización del nombre del partido */
+        #nombres-partido input {
+            width: 200px;
+            margin: 5px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        /* Efectos en botones */
+        button:active {
+            background-color: #1e40af; /* Azul más oscuro al presionar */
+        }
+    </style>
+    <script>
+        let tiempoRestante = 20 * 60; // 20 minutos en segundos
+        let cronometroActivo = false;
+        let intervalo;
+        const marcador = { equipo1: 0, equipo2: 0 };
+
+        function iniciarCronometro() {
+            if (!cronometroActivo) {
+                cronometroActivo = true;
+                intervalo = setInterval(() => {
+                    if (tiempoRestante > 0) {
+                        tiempoRestante--;
+                        actualizarCronometro();
+                    } else {
+                        clearInterval(intervalo);
+                        cronometroActivo = false;
+                        alert("¡Fin del tiempo!");
+                    }
+                }, 1000);
+            }
+        }
+
+        function pausarCronometro() {
+            cronometroActivo = false;
+            clearInterval(intervalo);
+        }
+
+        function reiniciarCronometro() {
+            pausarCronometro();
+            tiempoRestante = 20 * 60; // Reinicia a 20 minutos
+            actualizarCronometro();
+        }
+
+        function actualizarCronometro() {
+            const minutos = Math.floor(tiempoRestante / 60);
+            const segundos = tiempoRestante % 60;
+            document.getElementById("cronometro").innerText =
+                `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+        }
+
+        function actualizarMarcador(equipo, cambio) {
+            marcador[equipo] += cambio;
+            if (marcador[equipo] < 0) marcador[equipo] = 0;
+            document.getElementById("marcador").innerText =
+                `${marcador.equipo1} - ${marcador.equipo2}`;
+        }
+
+        function actualizarNombres() {
+            const partido = document.getElementById("nombrePartido").value;
+            const equipo1 = document.getElementById("nombreEquipo1").value;
+            const equipo2 = document.getElementById("nombreEquipo2").value;
+            document.getElementById("partido").innerText = partido || "Partido sin nombre";
+            document.getElementById("equipo1").innerText = equipo1 || "Equipo 1";
+            document.getElementById("equipo2").innerText = equipo2 || "Equipo 2";
+            
+            // Actualiza los botones para reflejar el nombre del Equipo 1 y Equipo 2
+            const botones = document.querySelectorAll('.marcador-btns button');
+            botones[0].innerText = `+1 ${equipo1 || 'Equipo 1'}`;
+            botones[1].innerText = `-1 ${equipo1 || 'Equipo 1'}`;
+            botones[2].innerText = `+1 ${equipo2 || 'Equipo 2'}`;
+            botones[3].innerText = `-1 ${equipo2 || 'Equipo 2'}`;
+        }
+
+        window.onload = () => {
+            actualizarCronometro();
+            document.getElementById("marcador").innerText =
+                `${marcador.equipo1} - ${marcador.equipo2}`;
+        };
+    </script>
+</head>
+<body>
+    <div class="background-image"></div>
+    <h1>Dream League</h1>
+
+    <!-- Personalización del nombre del partido -->
+    <div id="nombres-partido">
+        <input id="nombrePartido" type="text" placeholder="Nombre del partido" />
+        <input id="nombreEquipo1" type="text" placeholder="Nombre del equipo 1" />
+        <input id="nombreEquipo2" type="text" placeholder="Nombre del equipo 2" />
+        <button onclick="actualizarNombres()">Actualizar nombres</button>
+    </div>
+
+    <!-- Mostrar el nombre del partido -->
+    <div id="partido">Partido sin nombre</div>
+
+    <!-- Cronómetro -->
+    <div id="cronometro">20:00</div>
+    <button onclick="iniciarCronometro()">Reanudar</button>
+    <button onclick="pausarCronometro()">Pausar</button>
+    <button onclick="reiniciarCronometro()">Reiniciar</button>
+
+    <!-- Marcador con nombres de equipos -->
+    <div>
+        <span id="equipo1" class="equipo-nombre">Equipo 1</span>
+        <span id="marcador">0 - 0</span>
+        <span id="equipo2" class="equipo-nombre">Equipo 2</span>
+    </div>
+    
+    <!-- Botones para actualizar marcador -->
+    <div class="marcador-btns">
+        <button onclick="actualizarMarcador('equipo1', 1)">+1 Equipo 1</button>
+        <button onclick="actualizarMarcador('equipo1', -1)">-1 Equipo 1</button>
+        <button onclick="actualizarMarcador('equipo2', 1)">+1 Equipo 2</button>
+        <button onclick="actualizarMarcador('equipo2', -1)">-1 Equipo 2</button>
+    </div>
+</body>
+</html>
